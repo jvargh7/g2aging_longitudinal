@@ -1,5 +1,5 @@
 require(lubridate)
-g2alhrs_preprocessing <- function(df){
+g2alelsa_preprocessing <- function(df){
   df %>% 
     # Blood pressure cleaning -------
   mutate(
@@ -32,7 +32,9 @@ g2alhrs_preprocessing <- function(df){
                                  bmi < bmi_cutoff[3] ~ 0,
                                  TRUE ~ NA_real_)) %>% 
     
-    mutate(
+    mutate(sbp_avg = rowMeans(.[,c("sbp1","sbp2","sbp3")],na.rm=TRUE),
+           
+           dbp_avg = rowMeans(.[,c("dbp1","dbp2","dbp3")],na.rm=TRUE),
            htn = case_when(diagnosed_bp == 1 ~ 1,
                            is.na(sbp) | is.na(dbp) ~ NA_real_,
                            sbp >= sbp_cutoff ~ 1,
@@ -51,15 +53,15 @@ g2alhrs_preprocessing <- function(df){
            diaghtn = case_when(
              diagnosed_bp == 0 ~ NA_real_,
              is.na(sbp) | is.na(dbp) ~ NA_real_,
-             diagnosed_bp == 1 & age <= agebp_cutoff & sbp >= sbp_target[1] ~ 1,
-             diagnosed_bp == 1 & age <= agebp_cutoff & dbp >= dbp_target[1] ~ 1,
-             diagnosed_bp == 1 & age <= agebp_cutoff & sbp < sbp_target[1] ~ 0,
-             diagnosed_bp == 1 & age <= agebp_cutoff & dbp < dbp_target[1] ~ 0,
+             diagnosed_bp == 1 & age <= agebp_cutoff & sbp > sbp_target[1] ~ 1,
+             diagnosed_bp == 1 & age <= agebp_cutoff & dbp > dbp_target[1] ~ 1,
+             diagnosed_bp == 1 & age <= agebp_cutoff & sbp <= sbp_target[1] ~ 0,
+             diagnosed_bp == 1 & age <= agebp_cutoff & dbp <= dbp_target[1] ~ 0,
              
-             diagnosed_bp == 1 & age > agebp_cutoff & sbp >= sbp_target[2] ~ 1,
-             diagnosed_bp == 1 & age > agebp_cutoff & dbp >= dbp_target[2] ~ 1,
-             diagnosed_bp == 1 & age > agebp_cutoff & sbp < sbp_target[2] ~ 0,
-             diagnosed_bp == 1 & age > agebp_cutoff & dbp < dbp_target[2] ~ 0,
+             diagnosed_bp == 1 & age > agebp_cutoff & sbp > sbp_target[2] ~ 1,
+             diagnosed_bp == 1 & age > agebp_cutoff & dbp > dbp_target[2] ~ 1,
+             diagnosed_bp == 1 & age > agebp_cutoff & sbp <= sbp_target[2] ~ 0,
+             diagnosed_bp == 1 & age > agebp_cutoff & dbp <= dbp_target[2] ~ 0,
              
              TRUE ~ NA_real_)
     ) %>% 
@@ -115,46 +117,52 @@ g2alhrs_preprocessing <- function(df){
                                 TRUE ~ NA_real_)
   ) %>% 
     mutate(gender = case_when(gender == 1 ~ "Male",
-                              gender == 2 ~ "Female"),
+                           gender == 2 ~ "Female"),
+           
            spousegender = case_when(spousegender == 1 ~ "Male",
                                     spousegender == 2 ~ "Female"),
+           
            education_h = case_when(education_h %in% c(1:3) ~ education_h,
                                    TRUE ~ NA_real_)
            
            
     ) %>% 
-    mutate(laborforce = case_when(laborforce %in% c(1,2) ~ "employed",
-                                  laborforce %in% c(4,5) ~ "retired",
-                                  TRUE ~ "other")) %>% 
+    mutate(laborforce = case_when(retirement == 1 ~ 2,
+                                  employment == 1 ~ 1,
+                                  employment == 0 ~ 0,
+                                  TRUE ~ NA_real_)) %>% 
+    mutate(laborforce = factor(laborforce,levels=c(0:2),labels=c("None","Formal","Retired"))) %>% 
     
-    mutate_at(vars(diagnosed_bp,medication_bp,
+    mutate_at(vars(insurance,diagnosed_bp,medication_bp,
                    diagnosed_dm,medication_dm), function(x) case_when(x== 2 ~ 0,
                                                                       x == 1 ~ 1,
                                                                       TRUE ~ NA_real_)) %>% 
-    mutate(raceeth = case_when(ethnicity == 1 ~ "Hispanic",
-                               race == 1 ~ "NH White",
-                               race == 2 ~ "NH Black",
-                               race == 3 ~ "NH Other",
-                               TRUE ~ NA_character_)) %>% 
+    mutate(race = case_when(race == 1 ~ 1,
+                            race == 4 ~ 0,
+                            TRUE ~ as.numeric(race)),
+           
+           religion = case_when(religion == 1 ~ 11,
+                                religion == 8 ~ 12,
+                                TRUE ~ 13)) %>% 
     # BMI
     mutate_at(vars(bmi),function(x) case_when(x > bmi_max ~ NA_real_,
                                               TRUE ~ as.numeric(x))) %>%
-    # Circumference
-    mutate_at(vars(waistcircumference),function(x) case_when(x > 240 ~ NA_real_,
-                                                                              TRUE ~ as.numeric(x))) %>% 
-
     # Education - harmonized
     mutate_at(vars(education_h),function(x) case_when(x == 1 ~ "Less than lower secondary",
                                                       x == 2 ~ "Upper secondary and vocational training",
                                                       x == 3 ~ "Tertiary",
                                                       TRUE ~ NA_character_)) %>% 
-    
-    # # Religion
-    # mutate_at(vars(religion),function(x) case_when(x == 12 ~ "Hindu",
-    #                                                   x == 13 ~ "Muslim",
-    #                                                   TRUE ~ "Other")) %>% 
+    # Race
+    mutate_at(vars(race),function(x) case_when(x == 1 ~ "White",
+                                               x == 0 ~ "Non-White",
+                                               TRUE ~ "Other")) %>%
+    # Religion
+    mutate_at(vars(religion),function(x) case_when(x == 11 ~ "Christian",
+                                                   x == 12 ~ "None",
+                                                   TRUE ~ "Other")) %>% 
     # insurance, alcohol
-    mutate_at(vars(alcohol), function(x) case_when(x == 0 ~ 0,
+    mutate_at(vars(
+      alcohol,insurance), function(x) case_when(x == 0 ~ 0,
                                                 x == 1 ~ 1,
                                                 TRUE ~ NA_real_)) %>% 
     # Smoking
@@ -233,21 +241,9 @@ g2alhrs_preprocessing <- function(df){
                                     bmi < bmi_cutoff[1] ~ 1,
                                     TRUE ~ NA_real_),
            
-           highwc = case_when(gender == "Female" & waistcircumference >= female_wc_cutoff ~ 1,
-                              gender == "Female" & waistcircumference < female_wc_cutoff ~ 0,
-                              gender == "Male" & waistcircumference >= male_wc_cutoff ~ 1,
-                              gender == "Male" & waistcircumference < male_wc_cutoff ~ 0,
-                              TRUE ~ NA_real_
-           ),
-
            lengthmar_ge10 = case_when(lengthmar >= 10 ~ 1,
                                       lengthmar < 10 ~ 0,
-                                      TRUE ~ NA_real_),
-           firstmar = case_when(nmarriages == 1 ~ 1,
-                                nmarriages > 1 ~ 0,
-                                TRUE ~ NA_real_),
-           married = case_when(marstat %in% c(1,2) ~ 1,
-                               TRUE ~ 0)
+                                      TRUE ~ NA_real_)
     ) %>% 
     
     mutate(bmi_category = factor(bmi_category,levels=c(1:4),labels=c("Underweight","Normal","Overweight","Obese"))) %>% 
@@ -256,12 +252,22 @@ g2alhrs_preprocessing <- function(df){
                    diagnosed_bp,medication_bp),~case_when(is.na(.) ~ 0,
                                                           TRUE ~ .)) %>% 
     
-    mutate_at(vars(moderate_pa,vigorous_pa),function(x) case_when(x == 1 ~ 7,
-                                                                   x == 2 ~ 3.5,
-                                                                   x == 3 ~ 1,
-                                                                   x == 4 ~ 0.5,
-                                                                   x == 5 ~ 0,
-                                                                   TRUE ~ NA_real_)) %>% 
+    # ELSA -----
+  mutate_at(vars(moderate_pa,vigorous_pa), function(x) case_when(x %in% c(1,2) ~ 1,
+                                                                 x %in% c(3,4,5) ~ 0,
+                                                                 TRUE ~ NA_real_)) %>% 
+    mutate(heavydrinker = case_when(
+      gender == "Male" & drinksperweek >= 15 ~ 1,
+      gender == "Female" & drinksperweek >= 8 ~ 1,
+      
+      gender == "Male" & drinksperweek < 15 ~ 0,
+      gender == "Female" & drinksperweek < 8 ~ 0,
+      TRUE ~ NA_real_)) %>% 
+    
+    mutate(psu = case_when(psu %in% paste0("E1200000",c(1:9)) ~ str_replace(psu,"E1200000",""),
+                           psu == "S99999999" ~ "10",
+                           psu == "W99999999" ~ "11")) %>% 
+    mutate(psu = as.numeric(psu)) %>% 
     
     return(.)
 }
