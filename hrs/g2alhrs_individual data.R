@@ -51,7 +51,7 @@ spouses = left_join(rand_spouses,
                         by = c("hhid","spousepn" = "pn"))
 
 
-survey_vars <- c("strata","hhsampleweight","hhanalysisweight","indsampleweight","pn","hhid","hhidpn","spouseidpn","spousepn")
+survey_vars <- c("strata","hhsampleweight","hhanalysisweight","indsampleweight","pn","hhid","spousepn")
 hh_vars <- c("hh_wealth","hh_income","hh_children","hh_size")
 
 
@@ -82,42 +82,40 @@ heterosexual_couples <- left_join(male %>%
                                     dplyr::select(-one_of(survey_vars,hh_vars)) %>% 
                                     dplyr::select(contains("idpn"),everything()),
                                   by=c("coupleid")) %>% 
-  dplyr::select(hhidpn,spouseidpn,one_of(hh_vars),one_of(survey_vars),everything()) %>% 
-  dplyr::filter(hhidpn != spouseidpn,!is.na(hh_size),!is.na(w_type),!is.na(h_type)) 
+  dplyr::select(h_hhidpn,h_spouseidpn,w_hhidpn,w_spouseidpn,one_of(hh_vars),one_of(survey_vars),everything()) %>% 
+  dplyr::filter(h_hhidpn != h_spouseidpn,!is.na(hh_size),!is.na(w_type),!is.na(h_type)) 
 
 
 msm_couples <- left_join(male %>% 
-                                    distinct(coupleid,.keep_all=TRUE) %>% 
-                                    dplyr::filter(!is.na(spouseidpn),spousegender == "Male")  %>% 
-                                    rename_at(vars(-one_of(c(survey_vars,hh_vars,"coupleid"))),~paste0("h1_",.)) %>% 
-                                    dplyr::select(contains("idpn"),everything()),
+                           # distinct(coupleid,.keep_all=TRUE) %>% 
+                           dplyr::filter(!is.na(spouseidpn),gender == "Male",spousegender == "Male")  %>% 
+                           rename_at(vars(-one_of(c(survey_vars,hh_vars,"coupleid"))),~paste0("h1_",.)) %>% 
+                           dplyr::select(contains("idpn"),everything()),
                          male %>% 
-                                    distinct(coupleid,.keep_all=TRUE) %>% 
-                                    dplyr::filter(!is.na(spouseidpn),spousegender=="Male") %>% 
-                                    mutate(coupleid = paste0(hhid,pmin(pn,spousepn),"_",pmax(pn,spousepn))) %>% 
-                                    rename_at(vars(-one_of(c(survey_vars,hh_vars,"coupleid"))),~paste0("h2_",.)) %>% 
-                                    dplyr::select(-one_of(survey_vars,hh_vars)) %>% 
-                                    dplyr::select(contains("idpn"),everything()),
-                                  by=c("coupleid")) %>% 
-  dplyr::select(hhidpn,spouseidpn,one_of(hh_vars),one_of(survey_vars),everything()) %>% 
-  dplyr::filter(hhidpn != spouseidpn,!is.na(hh_size),!is.na(h1_type),!is.na(h2_type)) %>% 
+                           # distinct(coupleid,.keep_all=TRUE) %>% 
+                           dplyr::filter(!is.na(spouseidpn),gender == "Male",spousegender=="Male") %>% 
+                           rename_at(vars(-one_of(c(survey_vars,hh_vars,"coupleid"))),~paste0("h2_",.)) %>%
+                           dplyr::select(-one_of(survey_vars,hh_vars,"coupleid")) %>%
+                           dplyr::select(contains("idpn"),everything()),
+                         by=c("h1_spouseidpn"="h2_hhidpn")) %>% 
+  dplyr::select(coupleid,h1_hhidpn,h1_spouseidpn,h2_spouseidpn,one_of(hh_vars),one_of(survey_vars),h1_bmi,h2_bmi,everything()) %>% 
+  dplyr::filter(h1_hhidpn == h2_spouseidpn,!is.na(hh_size),!is.na(h1_type),!is.na(h2_type)) %>% 
   distinct(coupleid,.keep_all = TRUE)
 
 wsw_couples <- left_join(female %>% 
-                           distinct(coupleid,.keep_all=TRUE) %>% 
-                           dplyr::filter(!is.na(spouseidpn),spousegender == "Female")  %>% 
+                           # distinct(coupleid,.keep_all=TRUE) %>% 
+                           dplyr::filter(!is.na(spouseidpn),gender=="Female",spousegender == "Female")  %>% 
                            rename_at(vars(-one_of(c(survey_vars,hh_vars,"coupleid"))),~paste0("w1_",.)) %>% 
                            dplyr::select(contains("idpn"),everything()),
                          female %>% 
-                           distinct(coupleid,.keep_all=TRUE) %>% 
-                           dplyr::filter(!is.na(spouseidpn),spousegender=="Female") %>% 
-                           mutate(coupleid = paste0(hhid,pmin(pn,spousepn),"_",pmax(pn,spousepn))) %>% 
+                           # distinct(coupleid,.keep_all=TRUE) %>% 
+                           dplyr::filter(!is.na(spouseidpn),gender=="Female",spousegender=="Female") %>% 
                            rename_at(vars(-one_of(c(survey_vars,hh_vars,"coupleid"))),~paste0("w2_",.)) %>% 
-                           dplyr::select(-one_of(survey_vars,hh_vars)) %>% 
+                           dplyr::select(-one_of(survey_vars,hh_vars,"coupleid")) %>% 
                            dplyr::select(contains("idpn"),everything()),
-                         by=c("coupleid")) %>% 
-  dplyr::select(hhidpn,spouseidpn,one_of(hh_vars),one_of(survey_vars),everything()) %>% 
-  dplyr::filter(hhidpn != spouseidpn,!is.na(hh_size),!is.na(w1_type),!is.na(w2_type)) %>% 
+                         by=c("w1_spouseidpn"="w2_hhidpn")) %>% 
+  dplyr::select(w1_hhidpn,w1_spouseidpn,w2_spouseidpn,one_of(hh_vars),one_of(survey_vars),w1_bmi,w2_bmi,everything()) %>% 
+  dplyr::filter(w1_hhidpn == w2_spouseidpn,!is.na(hh_size),!is.na(w1_type),!is.na(w2_type)) %>% 
   distinct(coupleid,.keep_all = TRUE)
 
 
