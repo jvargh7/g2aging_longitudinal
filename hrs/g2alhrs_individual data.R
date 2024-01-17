@@ -51,7 +51,7 @@ spouses = left_join(rand_spouses,
                         by = c("hhid","spousepn" = "pn"))
 
 
-survey_vars <- c("strata","hhsampleweight","hhanalysisweight","indsampleweight","pn","hhid","spousepn")
+survey_vars <- c("strata","psu","hhsampleweight","hhanalysisweight","indsampleweight","pn","hhid","spousepn")
 hh_vars <- c("hh_wealth","hh_income","hh_children","hh_size")
 
 

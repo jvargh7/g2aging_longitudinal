@@ -25,18 +25,18 @@ male_whr_cutoff = 0.95
 # male_whr_cutoff = 0.9
 fpg_cutoff <- 126
 rpg_cutoff <- 200
-sbp_cutoff <- 140
-dbp_cutoff <- 90
+sbp_cutoff <- 130
+dbp_cutoff <- 80
 
 fpg_target <- 126
 rpg_target <- 180 #Indian DM guidelines
 # Indian HTN guidelines (Shah 2020: 130/80 for <= 60y, 140/90 otherwise)
 # Indian HTN guidelines (ICMR 2018: 140/90 for <= 80y, 150/90 otherwise)
-sbp_target <- c(140,140) 
+sbp_target <- c(130,130) 
 agebp_cutoff <- 80
-dbp_target <- c(90,90)
+dbp_target <- c(80,80)
 
 fpgpre_cutoff <- 100
 rpgpre_cutoff <- 140
-sbppre_cutoff <- 130
-dbppre_cutoff <- 85
+sbppre_cutoff <- 120
+dbppre_cutoff <- 80
