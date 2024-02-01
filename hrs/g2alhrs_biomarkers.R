@@ -1,3 +1,5 @@
+gc();rm(list=ls());source(".Rprofile")
+
 library(haven)
 
 g2ahrs_biomarker_variables_wave8 <- readxl::read_excel("hrs/G2A HRS Longitudinal Variable List.xlsx",sheet="biomarker") %>% 

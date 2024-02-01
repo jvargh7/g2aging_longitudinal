@@ -266,7 +266,9 @@ g2alelsa_preprocessing <- function(df){
     
     mutate(psu = case_when(psu %in% paste0("E1200000",c(1:9)) ~ str_replace(psu,"E1200000",""),
                            psu == "S99999999" ~ "10",
-                           psu == "W99999999" ~ "11")) %>% 
+                           psu == "W99999999" ~ "11",
+                           psu %in% LETTERS[1:12] ~ as.character(match(psu,c(LETTERS[1:12]))),
+                           TRUE ~ as.character(psu))) %>% 
     mutate(psu = as.numeric(psu)) %>% 
     
     return(.)

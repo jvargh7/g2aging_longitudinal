@@ -25,6 +25,22 @@ s_female <- haven::read_dta(paste0(path_g2a_data,"/elsa/h_elsa_g2.dta"),
 survey_vars <- c("strata","psu","hhid")
 hh_vars <- c("hh_wealth","hh_income","hh_consumption","hh_size")
 
+if("drinksperday" %in% g2aelsa_r_variables$new_var){
+  r_male <- r_male %>% 
+    mutate(drinksperweek = drinksperday*7)
+  
+  s_male <- s_male %>% 
+    mutate(drinksperweek = drinksperday*7)
+  
+  r_female <- r_female %>% 
+    mutate(drinksperweek = drinksperday*7)
+  
+  s_female <- s_female %>% 
+    mutate(drinksperweek = drinksperday*7)
+  
+  
+}
+
 source("elsa/g2alelsa_preprocessing.R")
 
 male <- bind_rows(r_male %>% mutate(type = "Respondent"),
