@@ -8,6 +8,7 @@ library(lme4)
 
 w0 <- lmer("w_sbp ~ w_lagged_sbp + h_lagged_sbp + wave + (1|w_hhidpn)",data=analytic_sample)
 
-summary(w0)
+w0 %>% 
+  broom.mixed::tidy(.)
 
 library(geepack)
