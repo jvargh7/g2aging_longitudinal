@@ -97,7 +97,12 @@ couples =  bind_rows(
   mutate(w_lagged_sbp = case_when(seq_waves == 1 ~ NA_real_,
                                   TRUE ~ dplyr::lag(w_sbp)),
          h_lagged_sbp = case_when(seq_waves == 1 ~ NA_real_,
-                                  TRUE ~ dplyr::lag(h_sbp))
+                                  TRUE ~ dplyr::lag(h_sbp)),
+         
+         w_lagged_bmi = case_when(seq_waves == 1 ~ NA_real_,
+                                  TRUE ~ dplyr::lag(w_bmi)),
+         h_lagged_bmi = case_when(seq_waves == 1 ~ NA_real_,
+                                  TRUE ~ dplyr::lag(h_bmi))
   ) %>% 
   ungroup() 
   

@@ -46,7 +46,7 @@ wave10 <- read_sav(paste0(path_g2a_longitudinal_folder,"/working/hrs raw/biomkr1
               .cols = g2ahrs_biomarker_variables_wave10$selected)
 
 wave11 <- read_sav(paste0(path_g2a_longitudinal_folder,"/working/hrs raw/biomkr12/biomk12bl_r.sav")) %>% 
-  rename_with(~ g2ahrs_biomarker_variables_wave11$g2ahrs_biomarker_variables_wave9[which(g2ahrs_biomarker_variables_wave11$selected == .x)], 
+  rename_with(~ g2ahrs_biomarker_variables_wave11$new_var[which(g2ahrs_biomarker_variables_wave11$selected == .x)], 
               .cols = g2ahrs_biomarker_variables_wave11$selected)
 
 wave12 <- read_sav(paste0(path_g2a_longitudinal_folder,"/working/hrs raw/BIOMK14BL/biomk14bl.sav")) %>% 
@@ -66,6 +66,8 @@ biomarkers <- bind_rows(
   wave13 %>% mutate(wave = 13, year = 2016)
 ) %>% 
   arrange(hhid,pn,wave) %>% 
-  dplyr::select(hhid,pn,wave,year,biowgtr,blversion,everything())
+  dplyr::select(hhid,pn,wave,year,biowgtr,blversion,everything()) %>% 
+  mutate(pn = as.numeric(pn),
+         hhid = paste0(hhid,"0"))
 
 saveRDS(biomarkers,paste0(path_g2a_longitudinal_folder,"/working/hrs biomarkers.RDS"))

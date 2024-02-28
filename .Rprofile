@@ -3,7 +3,7 @@ library(survey)
 
 if(Sys.info()["user"]=="JVARGH7"){
   path_g2a_data <- "C:/Cloud/OneDrive - Emory University/data/G2Aging"
-  path_g2a_longitudinal_folder <- "C:/Cloud/OneDrive - Emory University/Papers/HRS ELSA Longitudinal Concordance"
+  path_g2a_longitudinal_folder <- "C:/Cloud/OneDrive - Emory University/Papers/Crossnational Longitudinal Concordance"
 }
 
 options(survey.adjust.domain.lonely=TRUE)

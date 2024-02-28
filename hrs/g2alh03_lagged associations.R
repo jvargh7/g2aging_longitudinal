@@ -12,3 +12,6 @@ w0 %>%
   broom.mixed::tidy(.)
 
 library(geepack)
+
+w0 <- lmer("w_bmi ~ w_lagged_bmi + h_lagged_bmi + wave + (1|w_hhidpn)",data=analytic_sample)
+summary(w0)

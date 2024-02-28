@@ -1,5 +1,5 @@
 require(lubridate)
-g2alelsa_preprocessing <- function(df){
+g2alcharls_preprocessing <- function(df){
   df %>% 
     # Blood pressure cleaning -------
   mutate(
@@ -117,13 +117,10 @@ g2alelsa_preprocessing <- function(df){
                                 TRUE ~ NA_real_)
   ) %>% 
     mutate(gender = case_when(gender == 1 ~ "Male",
-                           gender == 2 ~ "Female"),
+                              gender == 2 ~ "Female"),
            
            spousegender = case_when(spousegender == 1 ~ "Male",
                                     spousegender == 2 ~ "Female"),
-           
-           eduyr = case_when(eduyr > 0 ~ eduyr,
-                             TRUE ~ NA_real_),
            
            education_h = case_when(education_h %in% c(1:3) ~ education_h,
                                    TRUE ~ NA_real_)
@@ -131,22 +128,24 @@ g2alelsa_preprocessing <- function(df){
            
     ) %>% 
     mutate(laborforce = case_when(retirement == 1 ~ 2,
-                                  employment == 1 ~ 1,
-                                  employment == 0 ~ 0,
+                                  workstatus %in% c(1,2,3,4,5) ~ 1,
+                                  workstatus %in% c(6,8) ~ 0,
                                   TRUE ~ NA_real_)) %>% 
     mutate(laborforce = factor(laborforce,levels=c(0:2),labels=c("None","Formal","Retired"))) %>% 
     
-    mutate_at(vars(insurance,diagnosed_bp,medication_bp,
+    mutate_at(vars(
+                   # insurance,
+                   diagnosed_bp,medication_bp,
                    diagnosed_dm,medication_dm), function(x) case_when(x== 2 ~ 0,
                                                                       x == 1 ~ 1,
                                                                       TRUE ~ NA_real_)) %>% 
-    mutate(race = case_when(race == 1 ~ 1,
-                            race == 4 ~ 0,
-                            TRUE ~ as.numeric(race)),
-           
-           religion = case_when(religion == 1 ~ 11,
-                                religion == 8 ~ 12,
-                                TRUE ~ 13)) %>% 
+    # mutate(race = case_when(race == 1 ~ 1,
+    #                         race == 4 ~ 0,
+    #                         TRUE ~ as.numeric(race)),
+    #        
+    #        religion = case_when(religion == 1 ~ 11,
+    #                             religion == 8 ~ 12,
+    #                             TRUE ~ 13)) %>% 
     # BMI
     mutate_at(vars(bmi),function(x) case_when(x > bmi_max ~ NA_real_,
                                               TRUE ~ as.numeric(x))) %>%
@@ -155,17 +154,19 @@ g2alelsa_preprocessing <- function(df){
                                                       x == 2 ~ "Upper secondary and vocational training",
                                                       x == 3 ~ "Tertiary",
                                                       TRUE ~ NA_character_)) %>% 
-    # Race
-    mutate_at(vars(race),function(x) case_when(x == 1 ~ "White",
-                                               x == 0 ~ "Non-White",
-                                               TRUE ~ "Other")) %>%
-    # Religion
-    mutate_at(vars(religion),function(x) case_when(x == 11 ~ "Christian",
-                                                   x == 12 ~ "None",
-                                                   TRUE ~ "Other")) %>% 
+    # # Race
+    # mutate_at(vars(race),function(x) case_when(x == 1 ~ "White",
+    #                                            x == 0 ~ "Non-White",
+    #                                            TRUE ~ "Other")) %>%
+    # # Religion
+    # mutate_at(vars(religion),function(x) case_when(x == 11 ~ "Christian",
+    #                                                x == 12 ~ "None",
+    #                                                TRUE ~ "Other")) %>% 
     # insurance, alcohol
     mutate_at(vars(
-      alcohol,insurance), function(x) case_when(x == 0 ~ 0,
+      alcohol
+      # insurance
+      ), function(x) case_when(x == 0 ~ 0,
                                                 x == 1 ~ 1,
                                                 TRUE ~ NA_real_)) %>% 
     # Smoking
@@ -267,12 +268,13 @@ g2alelsa_preprocessing <- function(df){
       gender == "Female" & drinksperweek < 8 ~ 0,
       TRUE ~ NA_real_)) %>% 
     
-    mutate(psu = case_when(psu %in% paste0("E1200000",c(1:9)) ~ str_replace(psu,"E1200000",""),
-                           psu == "S99999999" ~ "10",
-                           psu == "W99999999" ~ "11",
-                           psu %in% LETTERS[1:12] ~ as.character(match(psu,c(LETTERS[1:12]))),
-                           TRUE ~ as.character(psu))) %>% 
-    mutate(psu = as.numeric(psu)) %>% 
+    # From ELSA
+    # mutate(psu = case_when(psu %in% paste0("E1200000",c(1:9)) ~ str_replace(psu,"E1200000",""),
+    #                        psu == "S99999999" ~ "10",
+    #                        psu == "W99999999" ~ "11",
+    #                        psu %in% LETTERS[1:12] ~ as.character(match(psu,c(LETTERS[1:12]))),
+    #                        TRUE ~ as.character(psu))) %>% 
+    # mutate(psu = as.numeric(psu)) %>% 
     
     return(.)
 }

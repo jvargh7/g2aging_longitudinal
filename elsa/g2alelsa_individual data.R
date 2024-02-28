@@ -99,7 +99,7 @@ msm_couples <- left_join(male %>%
                            # distinct(coupleid,.keep_all=TRUE) %>% 
                            dplyr::filter(!is.na(h_spouseid),h_gender == "Male",h_spousegender == "Male")  %>% 
                            rename_at(vars(-one_of(c(survey_vars,hh_vars,"coupleid"))),function(x) str_replace(x,"^h_","h1_")) %>% 
-                           dplyr::select(contains("idpn"),everything()),
+                           dplyr::select(contains("id"),everything()),
                          male %>% 
                            # distinct(coupleid,.keep_all=TRUE) %>% 
                            dplyr::filter(!is.na(h_spouseid),h_gender == "Male",h_spousegender=="Male") %>% 
