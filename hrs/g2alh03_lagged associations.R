@@ -6,7 +6,7 @@ analytic_sample <- couples %>%
 
 library(lme4)
 
-w0 <- lmer("w_sbp ~ w_lagged_sbp + h_lagged_sbp + wave + (1|w_hhidpn)",data=analytic_sample)
+w0 <- lm("w_sbp ~ w_lagged_sbp + h_lagged_sbp + wave",data=analytic_sample)
 
 w0 %>% 
   broom.mixed::tidy(.)
