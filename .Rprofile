@@ -1,9 +1,15 @@
 library(tidyverse)
 library(survey)
+require(haven)
+require(srvyr)
 
 if(Sys.info()["user"]=="JVARGH7"){
   path_g2a_data <- "C:/Cloud/OneDrive - Emory University/data/G2Aging"
   path_g2a_longitudinal_folder <- "C:/Cloud/OneDrive - Emory University/Papers/Crossnational Longitudinal Concordance"
+}
+
+if(Sys.info()["user"]=="JGUO258"){
+  path_htn_family_folder <- "C:/Users/JGUO258/OneDrive - Emory/Crossnational Longitudinal Concordance"
 }
 
 options(survey.adjust.domain.lonely=TRUE)
@@ -40,3 +46,22 @@ fpgpre_cutoff <- 100
 rpgpre_cutoff <- 140
 sbppre_cutoff <- 120
 dbppre_cutoff <- 80
+
+
+
+add_normalizedweight <- function(dataset_path, h_weight_col, w_weight_col, h_id_col, w_id_col) {
+  dataset <- readRDS(dataset_path) %>%
+    dplyr::filter(!is.na(!!sym(h_weight_col)), !!sym(h_weight_col) > 0) %>%
+    dplyr::filter(!is.na(!!sym(w_weight_col)), !!sym(w_weight_col) > 0) %>%
+    arrange(!!sym(h_id_col), !!sym(w_id_col), wave) %>%
+    group_by(wave) %>%
+    mutate(h_normalizedweight = !!sym(h_weight_col) / sum(!!sym(h_weight_col)),
+           w_normalizedweight = !!sym(w_weight_col) / sum(!!sym(w_weight_col))) %>%
+    mutate(h_normalizedweight = h_normalizedweight / n(),
+           w_normalizedweight = w_normalizedweight / n()) %>%
+    ungroup() %>%
+    mutate(h_normalizedweight = h_normalizedweight * n(),
+           w_normalizedweight = w_normalizedweight * n())
+  
+  return(dataset)
+}
