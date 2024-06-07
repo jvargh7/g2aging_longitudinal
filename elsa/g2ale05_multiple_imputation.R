@@ -116,11 +116,7 @@ interaction_terms <- c(
   "h_htn_hh_low","h_htn_hh_medium","h_htn_hh_high","h_htn_hh_highest"
 )
 
-mi_null <- mice(before_imputation,
-                maxit = 0)
 
-method = mi_null$method
-pred = mi_null$predictorMatrix
 
 method[proportion_vars] <- map(method[proportion_vars],
                                .f=function(x) case_when(x=="" ~ "",
@@ -133,6 +129,18 @@ pred[id_vars,] <- 0
 pred[,id_vars] <- 0
 method[id_vars] <- ""
 
+
+mi_null <- mice(before_imputation,
+                maxit = 0)
+
+method = mi_null$method
+pred = mi_null$predictorMatrix
+
+pred[c("coupleid","w_personid","h_personid","h_sampleweight","w_sampleweight","strata","psu"),] <- 0
+pred[,c("coupleid","w_personid","h_personid","h_sampleweight","w_sampleweight","strata","psu")] <- 0
+method[c("coupleid","w_personid","h_personid","h_sampleweight","w_sampleweight","strata","psu")] <- ""
+
+
 # Impute via equation and do not use for imputation , --------
 method["hh_lengthmar_ge10"] <- "~I((hh_lengthmar>=10)*1)"
 pred["hh_lengthmar_ge10",] <- 0
@@ -142,6 +150,7 @@ method["w_ge65"] <- "~I((w_age>=65)*1)"
 method["h_ge65"] <- "~I((h_age>=65)*1)"
 pred[c("w_ge65","h_ge65"),] <- 0
 pred[,c("w_ge65","h_ge65")] <- 0
+
 
 
 for(i_t in interaction_terms){
@@ -160,5 +169,6 @@ mi_dfs <- mice(before_imputation,
                method = method,
                pred = pred,
                m=10,maxit=50,seed=500)
+
 
 saveRDS(mi_dfs, paste0(path_g2a_longitudinal_folder,"/working/G2A ELSA Couples mi_dfs.RDS"))

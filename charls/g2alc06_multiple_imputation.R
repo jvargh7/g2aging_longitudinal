@@ -121,7 +121,8 @@ before_imputation <- charls_unique %>%
                 -hh_wealthquintile) %>% 
   mutate_at(vars(hh_lengthmar_ge10),~as.numeric(as.character(.)))
 
-interaction_terms <- c("w_htn_residence","h_htn_residence",
+interaction_terms <- c(
+                      #"w_htn_residence","h_htn_residence",
                        "w_htn_h_education_2","w_htn_h_education_3",
                        "h_htn_w_education_2","h_htn_w_education_3",
                        "w_htn_h_ge65","h_htn_w_ge65",
@@ -130,11 +131,13 @@ interaction_terms <- c("w_htn_residence","h_htn_residence",
                        "h_htn_hh_low","h_htn_hh_medium","h_htn_hh_high","h_htn_hh_highest"
 )
 
-mi_null <- mice(before_imputation,
-                maxit = 0)
 
-method = mi_null$method
-pred = mi_null$predictorMatrix
+# Identify haven_labelled columns
+haven_cols <- sapply(before_imputation, function(x) inherits(x, "haven_labelled"))
+
+# Convert haven_labelled columns to factors
+before_imputation[haven_cols] <- lapply(before_imputation[haven_cols], as_factor)
+
 
 method[proportion_vars] <- map(method[proportion_vars],
                                .f=function(x) case_when(x=="" ~ "",
@@ -143,9 +146,25 @@ method[grouped_vars] <- map(method[grouped_vars],
                             .f=function(x) case_when(x=="" ~ "",
                                                      TRUE ~ "polyreg")) %>% unlist()
 
+
 pred[id_vars,] <- 0
 pred[,id_vars] <- 0
 method[id_vars] <- ""
+
+
+mi_null <- mice(before_imputation,
+                maxit = 0)
+
+method = mi_null$method
+pred = mi_null$predictorMatrix
+
+pred[c("w_id","h_id","w_spouseid","h_spouseid","coupleid","h_indsampleweight",
+       "w_indsampleweight"),] <- 0
+pred[,c("w_id","h_id","w_spouseid","h_spouseid","coupleid","h_indsampleweight",
+        "w_indsampleweight")] <- 0
+method[c("w_id","h_id","w_spouseid","h_spouseid","coupleid","h_indsampleweight",
+         "w_indsampleweight")] <- ""
+
 
 # Impute via equation and do not use for imputation , --------
 method["hh_lengthmar_ge10"] <- "~I((hh_lengthmar>=10)*1)"
@@ -175,7 +194,7 @@ mi_dfs <- mice(before_imputation,
                pred = pred,
                m=10,maxit=50,seed=500)
 
-saveRDS(mi_dfs, paste0(path_g2a_longitudinal_folder,"/charls/G2A CHARLS Couples mi_dfs JV.RDS"))
+saveRDS(mi_dfs, paste0(path_g2a_longitudinal_folder,"/working/G2A CHARLS Couples mi_dfs JV.RDS"))
 
 
 
