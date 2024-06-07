@@ -1,7 +1,7 @@
 rm(list=ls());gc();source(".Rprofile")
 
 
-charls <- add_normalizedweight(paste0(path_htn_family_folder, "/working/charls couples.RDS"),
+charls <- add_normalizedweight(paste0(path_g2a_longitudinal_folder, "/working/charls couples.RDS"),
                                "h_indsampleweight", "w_indsampleweight", "h_id", "w_id")
 # obs = 15590
 charls %>%

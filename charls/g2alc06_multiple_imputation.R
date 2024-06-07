@@ -175,7 +175,7 @@ mi_dfs <- mice(before_imputation,
                pred = pred,
                m=10,maxit=50,seed=500)
 
-saveRDS(mi_dfs, paste0(path_g2a_family_folder,"/charls/G2A CHARLS Couples mi_dfs JV.RDS"))
+saveRDS(mi_dfs, paste0(path_g2a_longitudinal_folder,"/charls/G2A CHARLS Couples mi_dfs JV.RDS"))
 
 
 

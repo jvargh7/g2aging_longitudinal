@@ -161,4 +161,4 @@ mi_dfs <- mice(before_imputation,
                pred = pred,
                m=10,maxit=50,seed=500)
 
-saveRDS(mi_dfs, paste0(path_g2a_family_folder,"/elsa/G2A ELSA Couples mi_dfs.RDS"))
+saveRDS(mi_dfs, paste0(path_g2a_longitudinal_folder,"/working/G2A ELSA Couples mi_dfs.RDS"))

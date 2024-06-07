@@ -9,7 +9,7 @@ if(Sys.info()["user"]=="JVARGH7"){
 }
 
 if(Sys.info()["user"]=="JGUO258"){
-  path_htn_family_folder <- "C:/Users/JGUO258/OneDrive - Emory/Crossnational Longitudinal Concordance"
+  path_g2a_longitudinal_folder <- "C:/Users/JGUO258/OneDrive - Emory/Crossnational Longitudinal Concordance"
 }
 
 options(survey.adjust.domain.lonely=TRUE)

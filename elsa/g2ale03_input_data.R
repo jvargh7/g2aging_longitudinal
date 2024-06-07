@@ -1,6 +1,6 @@
 rm(list=ls());gc();source(".Rprofile")
 
-elsa <- add_normalizedweight(paste0(path_htn_family_folder, "/working/elsa couples.RDS"),
+elsa <- add_normalizedweight(paste0(path_g2a_longitudinal_folder, "/working/elsa couples.RDS"),
                         "h_sampleweight", "w_sampleweight", "h_personid", "w_personid")
 
 elsa <- elsa %>% mutate(

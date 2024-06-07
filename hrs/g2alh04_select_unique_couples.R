@@ -1,7 +1,7 @@
 rm(list=ls());gc();source(".Rprofile")
 
 
-hrs <- add_normalizedweight(paste0(path_htn_family_folder, "/working/hrs couples.RDS"),
+hrs <- add_normalizedweight(paste0(path_g2a_longitudinal_folder, "/working/hrs couples.RDS"),
                             "h_indsampleweight", "w_indsampleweight", "h_hhidpn", "w_hhidpn")
 # obs = 12480
 hrs %>%

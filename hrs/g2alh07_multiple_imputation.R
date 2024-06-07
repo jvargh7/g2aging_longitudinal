@@ -187,7 +187,7 @@ mi_dfs <- mice(before_imputation,
                m=10,maxit=50,seed=500)
 
 
-saveRDS(mi_dfs, "/hrs/G2A HRS Couples mi_dfs.RDS")
+saveRDS(mi_dfs, paste0(path_g2a_longitudinal_folder,"/working/G2A HRS Couples mi_dfs.RDS"))
 
 
 
